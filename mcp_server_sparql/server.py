@@ -12,7 +12,7 @@ class SPARQLServer:
         self.sparql = SPARQLWrapper(endpoint_url)
         self.sparql.setReturnFormat(JSON)
     
-    def query(self, query_string: str) -> Dict[str, Any]:
+    def query(self, query_string: str) -> Any:
         """Execute a SPARQL query and return the results"""
         try:
             self.sparql.setQuery(query_string)
@@ -44,7 +44,7 @@ def main():
 
     def register_tool(ep_name: str, server: SPARQLServer, description: str) -> None:
         @mcp.tool(name=f"query_{ep_name}", description=description)
-        def query(query_string: str) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+        def query(query_string: str) -> Any:
             return server.query(query_string)
 
     if args.config:

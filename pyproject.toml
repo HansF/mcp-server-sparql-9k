@@ -1,5 +1,5 @@
 [project]
-name = "mcp-server-sparql"
+name = "mcp-server-sparql-9k"
 version = "0.1.0"
 description = "MCP server for querying SPARQL endpoint"
 license = { text = "MIT" }
@@ -22,7 +22,7 @@ authors = [
 ]
 
 [project.scripts]
-mcp-server-sparql = "mcp_server_sparql.server:main"
+mcp-server-sparql-9k = "mcp_server_sparql.server:main"
 
 [build-system]
 requires = ["hatchling"]
@@ -30,3 +30,6 @@ build-backend = "hatchling.build"
 
 [tool.uv]
 dev-dependencies = ["pyright>=1.1.389", "ruff>=0.7.3"]
+
+[tool.hatch.build.targets.wheel]
+packages = ["mcp_server_sparql"]
