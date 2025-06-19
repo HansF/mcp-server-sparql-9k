@@ -1,6 +1,6 @@
 import json
 import argparse
-from typing import Dict, Any, Optional, Union, List
+from typing import Dict, Any, List, Union
 
 from SPARQLWrapper import SPARQLWrapper, JSON, SPARQLExceptions
 from mcp.server.fastmcp import FastMCP
@@ -27,37 +27,66 @@ class SPARQLServer:
 def parse_args():
     parser = argparse.ArgumentParser(description="MCP SPARQL Query Server")
     parser.add_argument(
-        "--endpoint", 
-        required=True,
+        "--endpoint",
         help="SPARQL endpoint URL (e.g., http://dbpedia.org/sparql)"
+    )
+    parser.add_argument(
+        "--config",
+        help="Path to JSON configuration file for multiple endpoints"
     )
     return parser.parse_args()
 
 
 def main():
     args = parse_args()
-    
-    # Initialize the SPARQL server with the endpoint URL
-    sparql_server = SPARQLServer(endpoint_url=args.endpoint)
-    
-    # Create the MCP server
+
     mcp = FastMCP("SPARQL Query Server")
-    
-    query_doc = f"""
-Execute a SPARQL query against the endpoint {sparql_server.endpoint_url}.
-        
+
+    def register_tool(ep_name: str, server: SPARQLServer, description: str) -> None:
+        @mcp.tool(name=f"query_{ep_name}", description=description)
+        def query(query_string: str) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
+            return server.query(query_string)
+
+    if args.config:
+        with open(args.config, "r") as f:
+            config = json.load(f)
+        endpoints = config.get("endpoints", [])
+        if not endpoints:
+            raise ValueError("No endpoints found in config file")
+
+        for ep in endpoints:
+            name = ep["name"]
+            url = ep["url"]
+            instructions = ep.get("instructions", "")
+            sparql_server = SPARQLServer(endpoint_url=url)
+
+            query_doc = f"""Execute a SPARQL query against the endpoint {url}.
+{instructions}
+
 Args:
     query_string: A valid SPARQL query string
-    
+
 Returns:
     The query results in JSON format
 """
 
-    @mcp.tool(description=query_doc)
-    def query(query_string: str) -> Union[Dict[str, Any], List[Dict[str, Any]]]:
-        return sparql_server.query(query_string)
-    
-    # Run the MCP server
+            register_tool(name, sparql_server, query_doc)
+    elif args.endpoint:
+        sparql_server = SPARQLServer(endpoint_url=args.endpoint)
+
+        query_doc = f"""Execute a SPARQL query against the endpoint {sparql_server.endpoint_url}.
+
+Args:
+    query_string: A valid SPARQL query string
+
+Returns:
+    The query results in JSON format
+"""
+
+        register_tool("default", sparql_server, query_doc)
+    else:
+        raise ValueError("Provide --endpoint or --config")
+
     mcp.run(transport="stdio")
 
 
