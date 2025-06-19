@@ -4,7 +4,7 @@ A Model Context Protocol (MCP) server that provides tools for querying SPARQL en
 
 ## Usage
 
-Example usage for querying the Wikidata SPARQL endpoint.
+Example usage for querying a single SPARQL endpoint or multiple endpoints defined in a configuration file.
 
 ### uvx
 
@@ -13,6 +13,17 @@ Example usage for querying the Wikidata SPARQL endpoint.
   "mcp-server-sparql": {
     "command": "uvx",
     "args": ["mcp-server-sparql", "--endpoint", "https://query.wikidata.org/sparql"],
+  }
+}
+```
+
+To load multiple endpoints from a configuration file:
+
+```json
+"mcpServers": {
+  "mcp-server-sparql": {
+    "command": "uvx",
+    "args": ["mcp-server-sparql", "--config", "config.json"],
   }
 }
 ```
@@ -28,3 +39,5 @@ Execute a SPARQL query against the configured endpoint.
 **Returns:**
 
 - The query results in JSON format
+
+For configuring multiple endpoints see [docs/config.md](docs/config.md).
