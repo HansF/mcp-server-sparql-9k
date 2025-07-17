@@ -18,7 +18,7 @@ dependencies = [
 ]
 readme = "README.md"
 authors = [
-    {name = "Eric Zhu", email = "ekzhu@users.noreply.github.com"}
+    {name = "Hans Fraiponts", email = "fraiponts@gmail.com"}
 ]
 
 [project.scripts]
